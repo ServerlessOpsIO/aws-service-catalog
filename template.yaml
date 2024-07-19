@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS Service Catalog Products
+
+Resources:
+  GitHubCodeStarConnection:
+    Type: AWS::CodeConnections::Connection
+    Properties:
+      ConnectionName: ServerlessOps GitHub (Svc Cat)
+      ProviderType: GitHub
+
+  # Portfolios
+  BillingPortfolio:
+    Type: AWS::ServiceCatalog::Portfolio
+    Properties:
+      DisplayName: Billing
+      Description: "Billing & Cost Products"
+      ProviderName: ServerlessOps
+
+  CicdPortfolio:
+    Type: AWS::ServiceCatalog::Portfolio
+    Properties:
+      DisplayName: CI/CD
+      Description: "CI/CD Products"
+      ProviderName: ServerlessOps
+
+
+  # Products

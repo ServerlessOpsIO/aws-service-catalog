@@ -46,3 +46,25 @@ Resources:
     Properties:
       PortfolioId: !Ref BillingPortfolio
       ProductId: !Ref BillingAlarmsProduct
+
+
+  SamDeploymentProduct:
+    Type: AWS::ServiceCatalog::CloudFormationProduct
+    Properties:
+      Description: AWS SAM deployment resources
+      Name: AWS SAM Deployment
+      Owner: ServerlessOps
+      SourceConnection:
+        Type: CODESTAR
+        ConnectionParameters:
+          CodeStar:
+            ConnectionArn: !Ref GitHubCodeStarConnection
+            Repository: ServerlessOpsIO/aws-service-catalog-products
+            Branch: main
+            ArtifactPath: products/sam-deployment/product.yaml
+
+  SamDeploymentProductAssociation:
+    Type: AWS::ServiceCatalog::PortfolioProductAssociation
+    Properties:
+      PortfolioId: !Ref CicdPortfolio
+      ProductId: !Ref SamDeploymentProduct

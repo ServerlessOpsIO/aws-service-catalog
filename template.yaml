@@ -4,7 +4,7 @@ Description: AWS Service Catalog Products
 
 Resources:
   GitHubCodeStarConnection:
-    Type: AWS::CodeConnections::Connection
+    Type: AWS::CodeStarConnections::Connection
     Properties:
       ConnectionName: ServerlessOps GitHub (Svc Cat)
       ProviderType: GitHub
@@ -26,3 +26,23 @@ Resources:
 
 
   # Products
+  BillingAlarmsProduct:
+    Type: AWS::ServiceCatalog::CloudFormationProduct
+    Properties:
+      Description: Account Billing Alarms
+      Name: Billing Alarms
+      Owner: ServerlessOps
+      SourceConnection:
+        Type: CODESTAR
+        ConnectionParameters:
+          CodeStar:
+            ConnectionArn: !Ref GitHubCodeStarConnection
+            Repository: ServerlessOpsIO/aws-service-catalog-products
+            Branch: main
+            ArtifactPath: products/billing-alarms/product.yaml
+
+  BillingAlarmsProductAssociation:
+    Type: AWS::ServiceCatalog::PortfolioProductAssociation
+    Properties:
+      PortfolioId: !Ref BillingPortfolio
+      ProductId: !Ref BillingAlarmsProduct

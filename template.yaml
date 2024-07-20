@@ -29,8 +29,8 @@ Resources:
   BillingAlarmsProduct:
     Type: AWS::ServiceCatalog::CloudFormationProduct
     Properties:
-      Description: Account Billing Alarms
       Name: Billing Alarms
+      Description: Account Billing Alarms
       Owner: ServerlessOps
       SourceConnection:
         Type: CODESTAR
@@ -51,8 +51,8 @@ Resources:
   SamDeploymentProduct:
     Type: AWS::ServiceCatalog::CloudFormationProduct
     Properties:
-      Description: AWS SAM deployment resources
       Name: AWS SAM Deployment
+      Description: AWS SAM deployment resources
       Owner: ServerlessOps
       SourceConnection:
         Type: CODESTAR
@@ -68,3 +68,25 @@ Resources:
     Properties:
       PortfolioId: !Ref CicdPortfolio
       ProductId: !Ref SamDeploymentProduct
+
+
+  GhaBuildProduct:
+    Type: AWS::ServiceCatalog::CloudFormationProduct
+    Properties:
+      Name: GHA Build Account
+      Description: GHA build account resources
+      Owner: ServerlessOps
+      SourceConnection:
+        Type: CODESTAR
+        ConnectionParameters:
+          CodeStar:
+            ConnectionArn: !Ref GitHubCodeStarConnection
+            Repository: ServerlessOpsIO/aws-service-catalog-products
+            Branch: main
+            ArtifactPath: products/gha-build/product.yaml
+
+  GhaBuildProductAssociation:
+    Type: AWS::ServiceCatalog::PortfolioProductAssociation
+    Properties:
+      PortfolioId: !Ref CicdPortfolio
+      ProductId: !Ref GhaBuildProduct

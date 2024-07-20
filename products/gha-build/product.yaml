@@ -1,0 +1,190 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: GitHub Actions Build Account
+
+Metadata:
+  # NOTE: Ignore ServiceName parameter not currently being used
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W2001
+
+Parameters:
+  ServiceDomain:
+    Type: String
+    Description: "Name of service"
+    Default: "cicd"
+
+  ServiceName:
+    Type: String
+    Description: "Name of service"
+    Default: "gha-build"
+
+  ServiceBranch:
+    Type: String
+    Description: "Name of branch"
+    Default: "main"
+
+  GitHubOrgName:
+    Type: String
+    Description: Name of GitHub organization
+    Default: ServerlessOpsIO
+
+  IdpName:
+    Type: String
+    Description: "Name of IAM Identity Provider"
+    Default: "token.actions.githubusercontent.com"
+
+  DeployBucketArn:
+    Type: AWS::SSM::Parameter::Value<String>
+    Description: "ARN of deployment bucket"
+    Default: /cicd/main/SamDeployBucketArn
+
+
+Resources:
+  ###
+  # IAM Roles
+  ###
+  GitHubActionsBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "GitHubActionsBuildRole"
+      Description: "GitHubActions Build Role"
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/${IdpName}"
+            Condition:
+              ForAllValues:StringLike:
+                "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                "token.actions.githubusercontent.com:sub":
+                  - !Sub "repo:${GitHubOrgName}/*:ref:refs/heads/*"
+                  - !Sub "repo:${GitHubOrgName}/*:ref:refs/tags/*"
+                  - !Sub "repo:${GitHubOrgName}/*:environment:*"
+            Action:
+              - 'sts:AssumeRoleWithWebIdentity'
+      Policies:
+        # Needed for SAM validate
+        - PolicyName: Iam
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 'iam:ListPolicies'
+                Resource: '*'
+        - PolicyName: SsmParams
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 'ssm:GetParameter'
+                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ServiceDomain}/${ServiceBranch}/*"
+        - PolicyName: SharedS3DeployBucket
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:List*'
+                  - 's3:GetBucket*'
+                Resource:
+                  - !Ref DeployBucketArn
+        - PolicyName: SharedS3DeployBucketObjects
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:DeleteObject'
+                  - 's3:GetObject*'
+                  - 's3:List*'
+                  - 's3:PutObject*'
+                Resource:
+                  - !Sub "${DeployBucketArn}/${GitHubOrgName}/*"
+                  - !Sub "${DeployBucketArn}/*.template"
+        - PolicyName: SharedS3DeployBucketObjectsDenyMainDelete
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Deny
+                Action:
+                  - 's3:DeleteObject'
+                Resource:
+                  - !Sub "${DeployBucketArn}/${GitHubOrgName}/*/main/*"
+                  - !Sub "${DeployBucketArn}/*.template"
+        - PolicyName: S3Sse
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'kms:GenerateDataKey'
+                Resource: '*'
+        - PolicyName: STS
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'sts:AssumeRole'
+                  - 'sts:TagSession'
+                Resource:
+                  - 'arn:aws:iam::*:role/GitHubActionsCfnDeployRole'
+                  - 'arn:aws:iam::*:role/GitHubActionsTerraformDeployRole'
+        - PolicyName: EcrLogin
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ecr:GetAuthorizationToken'
+                Resource: '*'
+        - PolicyName: EcrPull
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ecr:BatchGetImage'
+                  - 'ecr:GetDownloadUrlForLayer'
+                Resource:
+                  - !Sub "arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/*"
+        - PolicyName: EcrPublish
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ecr:BatchCheckLayerAvailability'
+                  - 'ecr:CompleteLayerUpload'
+                  - 'ecr:InitiateLayerUpload'
+                  - 'ecr:PutImage'
+                  - 'ecr:UploadLayerPart'
+                  - 'ecr:DescribeRepositories'
+                  - 'ecr:CreateRepository'
+                  - 'ecr:SetRepositoryPolicy'
+                Resource:
+                  - !Sub "arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/${GitHubOrgName}/*"
+      Tags:
+        - Key: nbcu:cicd:Role
+          Value: GitHubActionsBuildIamRole
+
+  GitHubActionsOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      ClientIdList:
+        - sts.amazonaws.com
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+        - 1c58a3a8518e8759bf075b76b750d4f2df264fcd
+      Url: https://token.actions.githubusercontent.com
+
+  GitHubActionsIamRoleArnSsmParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/${ServiceDomain}/${ServiceBranch}/GitHubActionsBuildRoleArn"
+      Type: "String"
+      Description: "GitHubActions IAM Role ARN"
+      Value: !GetAtt GitHubActionsBuildRole.Arn

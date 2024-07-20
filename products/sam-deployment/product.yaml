@@ -154,3 +154,11 @@ Resources:
       Type: "String"
       Description: "Name of SAM Deploy bucket"
       Value: !Ref SamCliSourceBucket
+
+  SamDeployBucketArnSsmParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/cicd/${ServiceBranch}/SamDeployBucketArn"
+      Type: "String"
+      Description: "ARN of SAM Deploy bucket"
+      Value: !GetAtt SamCliSourceBucket.Arn

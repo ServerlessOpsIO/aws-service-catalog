@@ -13,7 +13,7 @@ BRANCH ?= local-${USER}
 APPNAME ?= $(shell basename ${CURDIR})
 STACKNAME = $(APPNAME)-$(BRANCH)
 AWS_REGION ?= $(shell aws configure get region)
-REPO_ID ?= ServerlessOpsIO/aws-service-catalog-products
+REPO_ID ?= ServerlessOpsIO/aws-service-catalog
 BRANCH ?= 'master'
 
 check_profile:

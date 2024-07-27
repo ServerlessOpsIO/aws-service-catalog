@@ -1,92 +1,48 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: AWS Service Catalog Products
+Description: AWS Service Catalog account setup
+
+Parameters:
+  ServiceBranch:
+    Type: String
+    Description: The branch of this deployment
+    Default: main
 
 Resources:
-  GitHubCodeStarConnection:
-    Type: AWS::CodeStarConnections::Connection
+  CfnTemplateBucket:
+    Type: AWS::S3::Bucket
     Properties:
-      ConnectionName: ServerlessOps GitHub (Svc Cat)
-      ProviderType: GitHub
+      BucketName: !Sub 'aws-service-catalog-templates-${AWS::AccountId}-${AWS::Region}'
 
-  # Portfolios
-  BillingPortfolio:
-    Type: AWS::ServiceCatalog::Portfolio
+  CfnTemplateBucketNameSsmParameter:
+    Type: AWS::SSM::Parameter
     Properties:
-      DisplayName: Billing
-      Description: "Billing & Cost Products"
-      ProviderName: ServerlessOps
+      Name: !Sub '/service-catalog/${ServiceBranch}/CfnTemplateBucketName'
+      Type: String
+      Value: !Ref CfnTemplateBucket
 
-  CicdPortfolio:
-    Type: AWS::ServiceCatalog::Portfolio
+  # Delegated Access role for Service Catalog
+  # ref.https://aws.amazon.com/blogs/mt/simplify-sharing-your-aws-service-catalog-portfolios-in-an-aws-organizations-setup/
+  AWSCloudFormationStackSetAdministrationRole:
+    Type: AWS::IAM::Role
     Properties:
-      DisplayName: CI/CD
-      Description: "CI/CD Products"
-      ProviderName: ServerlessOps
-
-
-  # Products
-  BillingAlarmsProduct:
-    Type: AWS::ServiceCatalog::CloudFormationProduct
-    Properties:
-      Name: Billing Alarms
-      Description: Account Billing Alarms
-      Owner: ServerlessOps
-      SourceConnection:
-        Type: CODESTAR
-        ConnectionParameters:
-          CodeStar:
-            ConnectionArn: !Ref GitHubCodeStarConnection
-            Repository: ServerlessOpsIO/aws-service-catalog-products
-            Branch: main
-            ArtifactPath: products/billing-alarms/product.yaml
-
-  BillingAlarmsProductAssociation:
-    Type: AWS::ServiceCatalog::PortfolioProductAssociation
-    Properties:
-      PortfolioId: !Ref BillingPortfolio
-      ProductId: !Ref BillingAlarmsProduct
-
-
-  SamDeploymentProduct:
-    Type: AWS::ServiceCatalog::CloudFormationProduct
-    Properties:
-      Name: AWS SAM Deployment
-      Description: AWS SAM deployment resources
-      Owner: ServerlessOps
-      SourceConnection:
-        Type: CODESTAR
-        ConnectionParameters:
-          CodeStar:
-            ConnectionArn: !Ref GitHubCodeStarConnection
-            Repository: ServerlessOpsIO/aws-service-catalog-products
-            Branch: main
-            ArtifactPath: products/sam-deployment/product.yaml
-
-  SamDeploymentProductAssociation:
-    Type: AWS::ServiceCatalog::PortfolioProductAssociation
-    Properties:
-      PortfolioId: !Ref CicdPortfolio
-      ProductId: !Ref SamDeploymentProduct
-
-
-  GhaBuildProduct:
-    Type: AWS::ServiceCatalog::CloudFormationProduct
-    Properties:
-      Name: GHA Build Account
-      Description: GHA build account resources
-      Owner: ServerlessOps
-      SourceConnection:
-        Type: CODESTAR
-        ConnectionParameters:
-          CodeStar:
-            ConnectionArn: !Ref GitHubCodeStarConnection
-            Repository: ServerlessOpsIO/aws-service-catalog-products
-            Branch: main
-            ArtifactPath: products/gha-build/product.yaml
-
-  GhaBuildProductAssociation:
-    Type: AWS::ServiceCatalog::PortfolioProductAssociation
-    Properties:
-      PortfolioId: !Ref CicdPortfolio
-      ProductId: !Ref GhaBuildProduct
+      RoleName: AWSCloudFormationStackSetAdministrationRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudformation.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: AssumeRole-AWSCloudFormationStackSetExecutionRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sts:AssumeRole
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:iam::*:role/AWSCloudFormationStackSetExecutionRole'

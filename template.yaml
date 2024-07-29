@@ -8,11 +8,33 @@ Parameters:
     Description: The branch of this deployment
     Default: main
 
+  AwsOrganizationId:
+    Type: String
+    Description: The AWS Organization Id
+    Default: o-txczodrxtj
+
 Resources:
   CfnTemplateBucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub 'aws-service-catalog-templates-${AWS::AccountId}-${AWS::Region}'
+
+  CfnTemplateBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref CfnTemplateBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 's3:GetObject*'
+              - 's3:List*'
+            Resource: !Sub 'arn:${AWS::Partition}:s3:::${CfnTemplateBucket}/*'
+            Condition:
+              StringEquals:
+                "aws:PrincipalOrgID":
+                  - !Ref AwsOrganizationId
 
   CfnTemplateBucketNameSsmParameter:
     Type: AWS::SSM::Parameter

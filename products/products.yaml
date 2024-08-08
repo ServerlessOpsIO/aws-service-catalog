@@ -7,4 +7,45 @@ Parameters:
     Description: The S3 bucket CloudFormation templates are stored
 
 Resources:
+  # Portfolios
+  NetworkingPortfolio:
+    Type: AWS::ServiceCatalog::Portfolio
+    Properties:
+      DisplayName: Networking
+      Description: "Networking products"
+      ProviderName: ServerlessOps
+
+  NetworkingPortfolioPrincipalAdmin:
+    Type: AWS::ServiceCatalog::PortfolioPrincipalAssociation
+    Properties:
+      PortfolioId: !Ref NetworkingPortfolio
+      PrincipalARN: !Sub 'arn:${AWS::Partition}:iam:::role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AWSAdministratorAccess_*'
+      PrincipalType: IAM_PATTERN
+
+  NetworkingPortfolioPrincipalPowerUser:
+    Type: AWS::ServiceCatalog::PortfolioPrincipalAssociation
+    Properties:
+      PortfolioId: !Ref NetworkingPortfolio
+      PrincipalARN: !Sub 'arn:${AWS::Partition}:iam:::role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AWSPowerUserAccess_*'
+      PrincipalType: IAM_PATTERN
+
+  # Products
+  VpcProduct:
+    Type: AWS::ServiceCatalog::CloudFormationProduct
+    Properties:
+      Name: VPC
+      Description: VPC networking
+      Owner: ServerlessOps
+      ProvisioningArtifactParameters:
+        - Name: latest
+          Description: latest release
+          Info:
+            LoadTemplateFromURL: !Sub 'https://${CfnTemplateBucket}.s3.amazonaws.com/networking/vpc.yaml'
+
+
+  VpcProductAssociation:
+    Type: AWS::ServiceCatalog::PortfolioProductAssociation
+    Properties:
+      PortfolioId: !Ref NetworkingPortfolio
+      ProductId: !Ref VpcProduct
 

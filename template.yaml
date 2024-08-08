@@ -3,26 +3,17 @@ Transform: AWS::Serverless-2016-10-31
 Description: AWS Service Catalog account setup
 
 Parameters:
-  ServiceBranch:
-    Type: String
-    Description: The branch of this deployment
-    Default: main
-
   AwsOrganizationId:
     Type: String
     Description: The AWS Organization Id
-    Default: o-txczodrxtj
 
   TargetOuIds:
     Type: CommaDelimitedList
     Description: List of OUs
-    Default: r-c834
 
   TargetRegions:
     Type: CommaDelimitedList
-    Description: Regions to deploy to
-    Default: us-east-1,us-east-2
-
+    Description: List of regions
 
 Resources:
   CfnTemplateBucket:
@@ -47,9 +38,30 @@ Resources:
                 "aws:PrincipalOrgID":
                   - !Ref AwsOrganizationId
 
-  CfnTemplateBucketNameSsmParameter:
-    Type: AWS::SSM::Parameter
+  OrgProductsStack:
+    Type: AWS::Serverless::Application
     Properties:
-      Name: !Sub '/service-catalog/${ServiceBranch}/CfnTemplateBucketName'
-      Type: String
-      Value: !Ref CfnTemplateBucket
+      Location: "./products/products.yaml"
+      Parameters:
+        CfnTemplateBucket: !Ref CfnTemplateBucket
+
+  OrgProductsStackSet:
+    Type: AWS::CloudFormation::StackSet
+    Properties:
+      StackSetName: OrgProducts
+      Description: Organization products
+      StackInstancesGroup:
+        - DeploymentTargets:
+            OrganizationalUnitIds: !Ref TargetOuIds
+          Regions: !Ref TargetRegions
+      AutoDeployment:
+        Enabled: true
+        RetainStacksOnAccountRemoval: false
+      ManagedExecution:
+        Active: true
+      OperationPreferences:
+        RegionConcurrencyType: PARALLEL
+        FailureToleranceCount: 1
+        MaxConcurrentCount: 5
+      PermissionModel: SERVICE_MANAGED
+      TemplateURL: !Sub https://${CfnTemplateBucket}.s3.amazonaws.com/products.yaml

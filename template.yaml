@@ -13,6 +13,17 @@ Parameters:
     Description: The AWS Organization Id
     Default: o-txczodrxtj
 
+  TargetOuIds:
+    Type: CommaDelimitedList
+    Description: List of OUs
+    Default: r-c834
+
+  TargetRegions:
+    Type: CommaDelimitedList
+    Description: Regions to deploy to
+    Default: us-east-1,us-east-2
+
+
 Resources:
   CfnTemplateBucket:
     Type: AWS::S3::Bucket
@@ -42,29 +53,3 @@ Resources:
       Name: !Sub '/service-catalog/${ServiceBranch}/CfnTemplateBucketName'
       Type: String
       Value: !Ref CfnTemplateBucket
-
-  # Delegated Access role for Service Catalog
-  # ref.https://aws.amazon.com/blogs/mt/simplify-sharing-your-aws-service-catalog-portfolios-in-an-aws-organizations-setup/
-  AWSCloudFormationStackSetAdministrationRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: AWSCloudFormationStackSetAdministrationRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: cloudformation.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: /
-      Policies:
-        - PolicyName: AssumeRole-AWSCloudFormationStackSetExecutionRole
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - sts:AssumeRole
-                Resource:
-                  - !Sub 'arn:${AWS::Partition}:iam::*:role/AWSCloudFormationStackSetExecutionRole'

@@ -1,0 +1,10 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS Service Catalog
+
+Parameters:
+  CfnTemplateBucket:
+    Type: String
+    Description: The S3 bucket CloudFormation templates are stored
+
+Resources:
+

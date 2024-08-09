@@ -38,12 +38,12 @@ Resources:
                 "aws:PrincipalOrgID":
                   - !Ref AwsOrganizationId
 
-  OrgProductsStack:
-    Type: AWS::Serverless::Application
-    Properties:
-      Location: "./products/products.yaml"
-      Parameters:
-        CfnTemplateBucket: !Ref CfnTemplateBucket
+#  OrgProductsStack:
+#    Type: AWS::Serverless::Application
+#    Properties:
+#      Location: "./products/products.yaml"
+#      Parameters:
+#        CfnTemplateBucket: !Ref CfnTemplateBucket
 
   OrgProductsStackSet:
     Type: AWS::CloudFormation::StackSet

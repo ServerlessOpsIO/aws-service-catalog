@@ -50,6 +50,9 @@ Resources:
     Properties:
       StackSetName: OrgProducts
       Description: Organization products
+      Parameters:
+        - ParameterKey: CfnTemplateBucket
+          ParameterValue: !Ref CfnTemplateBucket
       StackInstancesGroup:
         - DeploymentTargets:
             OrganizationalUnitIds: !Ref TargetOuIds

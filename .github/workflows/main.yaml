@@ -162,14 +162,15 @@ jobs:
         id: process-aws-parameters
         shell: bash
         run: >-
-         echo "AWS_CFN_PARAMS=$(
+         AWS_CFN_PARAMS=$(
             cat cfn-parameters.json |
             jq -r '
               to_entries |
               map("--parameter-overrides \(.key)=\(.value|tostring)") |
               join(" ")
             '
-          )" >> $GITHUB_ENV
+          ) &&
+          echo "AWS_CFN_PARAMS=${AWS_CFN_PARAMS:-''}" >> $GITHUB_ENV
 
       - name: Deploy via SAM
         id: deploy-sam

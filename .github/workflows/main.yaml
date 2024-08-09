@@ -145,18 +145,19 @@ jobs:
         id: processaws-tags
         shell: bash
         run: >-
-          echo "AWS_CFN_TAGS=$(
+          AWS_CFN_TAGS=$(
             cat cfn-tags.json |
             jq -r '
               to_entries |
-              map("--tags \(.key)=\(.value|tostring)") |
+              map("\(.key)=\(.value|tostring)") |
               . += [
-                "--tags org:branch=${{ env.GITHUB_EVENT_REF_SLUG_URL }}",
-                "--tags org:stackName=${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG_URL }}-${{ env.GITHUB_EVENT_REF_SLUG_URL }}"
+                "org:branch=${{ env.GITHUB_EVENT_REF_SLUG_URL }}",
+                "org:stackName=${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG_URL }}-${{ env.GITHUB_EVENT_REF_SLUG_URL }}"
               ] |
               join(" ")
             '
-          )" >> $GITHUB_ENV
+          ) &&
+          echo "AWS_CFN_TAGS=--tags ${AWS_CFN_TAGS}">> $GITHUB_ENV
 
       - name: Process AWS Cloudformation Parameters
         id: process-aws-parameters
@@ -166,11 +167,11 @@ jobs:
             cat cfn-parameters.json |
             jq -r '
               to_entries |
-              map("--parameter-overrides \(.key)=\(.value|tostring)") |
+              map("\(.key)=\(.value|tostring)") |
               join(" ")
             '
           ) &&
-          echo "AWS_CFN_PARAMS=${AWS_CFN_PARAMS:-''}" >> $GITHUB_ENV
+          echo "AWS_CFN_PARAMS=--parameter-overrides ${AWS_CFN_PARAMS}" >> $GITHUB_ENV
 
       - name: Deploy via SAM
         id: deploy-sam

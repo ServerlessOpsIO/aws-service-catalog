@@ -1,3 +1,6 @@
+Metadata:
+  localTemplateFile: &template_body ./products/products.yaml
+
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: AWS Service Catalog account setup
@@ -67,4 +70,4 @@ Resources:
         FailureToleranceCount: 1
         MaxConcurrentCount: 5
       PermissionModel: SERVICE_MANAGED
-      TemplateURL: !Sub https://${CfnTemplateBucket}.s3.amazonaws.com/products.yaml
+      TemplateBody: *template_body

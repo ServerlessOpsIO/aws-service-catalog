@@ -7,10 +7,107 @@ Parameters:
     Type: String
     Description: "VPC CIDR block"
 
+  VpcPrivateSubnet1Cidr:
+    Type: String
+    Description: "VPC private subnet 1 CIDR block"
+
+  EnableNatGateway:
+    Type: String
+    Description: "Enable NAT Gateway for private subnets"
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "false"
+
+Conditions:
+  NatGatewayEnabled: !Equals [!Ref EnableNatGateway, "true"]
+
 Resources:
   Vpc:
-    Type: 'AWS::EC2::VPC'
+    Type: AWS::EC2::VPC
     Properties:
       CidrBlock: !Ref VpcCidr
       EnableDnsHostnames: true
       EnableDnsSupport: true
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub 'Internet Gateway - ${Vpc}'
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref Vpc
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc
+      Tags:
+        - Key: Name
+          Value: !Sub 'Public Route Table - ${Vpc}'
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: !Ref VpcPrivateSubnet1Cidr
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ['Private Subnet ${AZ} - ${VPC}', { 'AZ': !Select [0, !GetAZs ""], 'VPC': !Ref Vpc }]
+
+  PrivateSubnet1RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc
+      Tags:
+        - Key: Name
+          Value: !Sub ['Private Subnet Route Table ${AZ} - ${VPC}', { 'AZ': !Select [0, !GetAZs ""], 'VPC': !Ref Vpc }]
+
+  PrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnet1RouteTable
+      SubnetId: !Ref PrivateSubnet1
+
+  PrivateSubnet1NatEip:
+    Type: AWS::EC2::EIP
+    Condition: NatGatewayEnabled
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub ['NAT Gateway EIP ${AZ} - ${VPC}', { 'AZ': !Select [0, !GetAZs ""], 'VPC': !Ref Vpc }]
+
+  PrivateSubnet1NatGateway:
+    Type: AWS::EC2::NatGateway
+    DependsOn: InternetGatewayAttachment
+    Condition: NatGatewayEnabled
+    Properties:
+      AllocationId: !GetAtt PrivateSubnet1NatEip.AllocationId
+      SubnetId: !Ref PrivateSubnet1
+      Tags:
+        - Key: Name
+          Value: !Sub ['NAT Gateway ${AZ} - ${VPC}', { 'AZ': !Select [0, !GetAZs ""], 'VPC': !Ref Vpc }]
+
+  PrivateSubnet1DefaultRoute:
+    Type: 'AWS::EC2::Route'
+    Condition: NatGatewayEnabled
+    Properties:
+      RouteTableId: !Ref PrivateSubnet1RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref PrivateSubnet1NatGateway

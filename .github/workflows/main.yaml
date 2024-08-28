@@ -173,14 +173,22 @@ jobs:
       - name: Process AWS Cloudformation Parameters
         id: process-aws-parameters
         shell: bash
+        env:
+          GHA_SECRETS: ${{ tojson(secrets) }}
+          GHA_VARS: ${{ toJson(env) }}
         run: >-
          AWS_CFN_PARAMS=$(
-            cat cfn-parameters.json |
-            jq -r '
-              to_entries |
-              map("\(.key)=\(.value|tostring)") |
-              join(" ")
-            '
+            jq \
+              -n \
+              --argjson secrets "$GHA_SECRETS" \
+              --argjson vars "$GHA_VARS" \
+              -f cfn-parameters.json |
+            jq \
+              -r '
+                to_entries |
+                map("\(.key)=\(.value|tostring)") |
+                join(" ")
+              '
           ) &&
           echo "AWS_CFN_PARAMS=--parameter-overrides ${AWS_CFN_PARAMS}" >> $GITHUB_ENV
 

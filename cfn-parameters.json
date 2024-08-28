@@ -1,5 +1,6 @@
 {
     "AwsOrganizationId": "o-txczodrxtj",
     "TargetOuIds": "r-c834",
-    "TargetRegions": "us-east-1,us-east-2"
+    "TargetRegions": "us-east-1,us-east-2",
+    "GitHubSha": $vars.GITHUB_SHA
 }

@@ -6,6 +6,10 @@ Parameters:
     Type: String
     Description: The S3 bucket CloudFormation templates are stored
 
+  GitHubSha:
+    Type: String
+    Description: GitHub SHA
+
 Resources:
   # Portfolios
   NetworkingPortfolio:
@@ -40,7 +44,7 @@ Resources:
         - Name: latest
           Description: latest release
           Info:
-            LoadTemplateFromURL: !Sub 'https://${CfnTemplateBucket}.s3.amazonaws.com/networking/vpc.yaml'
+            LoadTemplateFromURL: !Sub 'https://${CfnTemplateBucket}.s3.amazonaws.com/${GitHubSha}/networking/vpc.yaml'
 
 
   VpcProductAssociation:

@@ -18,6 +18,10 @@ Parameters:
     Type: CommaDelimitedList
     Description: List of regions
 
+  GitHubSha:
+    Type: String
+    Description: GitHub SHA
+
 Resources:
   CfnTemplateBucket:
     Type: AWS::S3::Bucket
@@ -47,6 +51,7 @@ Resources:
       Location: "./products/products.yaml"
       Parameters:
         CfnTemplateBucket: !Ref CfnTemplateBucket
+        GitHubSha: !Ref GitHubSha
 
   OrgProductsStackSet:
     Type: AWS::CloudFormation::StackSet

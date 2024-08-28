@@ -64,6 +64,8 @@ Resources:
       Parameters:
         - ParameterKey: CfnTemplateBucket
           ParameterValue: !Ref CfnTemplateBucket
+        - ParameterKey: GitHubSha
+          ParameterValue: !Ref GitHubSha
       StackInstancesGroup:
         - DeploymentTargets:
             OrganizationalUnitIds: !Ref TargetOuIds

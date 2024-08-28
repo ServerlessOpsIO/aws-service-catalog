@@ -2,5 +2,5 @@
     "AwsOrganizationId": "o-txczodrxtj",
     "TargetOuIds": "r-c834",
     "TargetRegions": "us-east-1,us-east-2",
-    "GitHubSha": $vars.GITHUB_SHA
+    "GitHubSha": $env.GITHUB_SHA
 }

@@ -175,13 +175,13 @@ jobs:
         shell: bash
         env:
           GHA_SECRETS: ${{ tojson(secrets) }}
-          GHA_VARS: ${{ toJson(env) }}
+          GHA_ENV: ${{ toJson(env) }}
         run: >-
          AWS_CFN_PARAMS=$(
             jq \
               -n \
               --argjson secrets "$GHA_SECRETS" \
-              --argjson vars "$GHA_VARS" \
+              --argjson env "$GHA_ENV" \
               -f cfn-parameters.json |
             jq \
               -r '

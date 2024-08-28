@@ -27,6 +27,9 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub 'aws-service-catalog-templates-${AWS::AccountId}-${AWS::Region}'
+      Tags:
+        - Key: org:cicd:writable
+          Value: "true"
 
   CfnTemplateBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -45,13 +48,13 @@ Resources:
                 "aws:PrincipalOrgID":
                   - !Ref AwsOrganizationId
 
-  OrgProductsStack:
-    Type: AWS::Serverless::Application
-    Properties:
-      Location: "./products/products.yaml"
-      Parameters:
-        CfnTemplateBucket: !Ref CfnTemplateBucket
-        GitHubSha: !Ref GitHubSha
+  #OrgProductsStack:
+  #  Type: AWS::Serverless::Application
+  #  Properties:
+  #    Location: "./products/products.yaml"
+  #    Parameters:
+  #      CfnTemplateBucket: !Ref CfnTemplateBucket
+  #      GitHubSha: !Ref GitHubSha
 
   OrgProductsStackSet:
     Type: AWS::CloudFormation::StackSet

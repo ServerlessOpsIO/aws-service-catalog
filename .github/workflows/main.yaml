@@ -184,8 +184,9 @@ jobs:
           ) &&
           echo "AWS_CFN_PARAMS=--parameter-overrides ${AWS_CFN_PARAMS}" >> $GITHUB_ENV
 
-      - name: Sync product templates to S3
-        run: aws s3 sync products/ s3://aws-service-catalog-templates-349603509961-us-east-1/${{ env.GITHUB_SHA }}/
+      #- name: Sync product templates to S3
+      #  id: sync-templates
+      #  run: aws s3 sync products/ s3://aws-service-catalog-templates-349603509961-us-east-1/${{ env.GITHUB_SHA }}/
 
       - name: Deploy via SAM
         id: deploy-sam

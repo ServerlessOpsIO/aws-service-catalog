@@ -19,6 +19,18 @@ Parameters:
     Type: String
     Description: "VPC private subnet 3 CIDR block"
 
+  VpcPublicSubnet1Cidr:
+    Type: String
+    Description: "VPC public subnet 1 CIDR block"
+
+  VpcPublicSubnet2Cidr:
+    Type: String
+    Description: "VPC public subnet 2 CIDR block"
+
+  VpcPublicSubnet3Cidr:
+    Type: String
+    Description: "VPC public subnet 3 CIDR block"
+
   EnableNatGateway:
     Type: String
     Description: "Enable NAT Gateway for private subnets"
@@ -67,6 +79,7 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGateway
 
+  # Private Subnets
   ## Private Subnet 1
   PrivateSubnet1:
     Type: AWS::EC2::Subnet
@@ -228,3 +241,59 @@ Resources:
       RouteTableId: !Ref PrivateSubnet3RouteTable
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref PrivateSubnet3NatGateway
+
+
+  # Public Subnets
+  ## Public Subnet 1
+  PublicSubnet1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref Vpc
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: !Ref VpcPublicSubnet1Cidr
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ['Public Subnet ${AZ} - ${VPC}', { 'AZ': !Select [0, !GetAZs ""], 'VPC': !Ref Vpc }]
+
+  PublicSubnet1RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+
+  ## Public Subnet 2
+  PublicSubnet2:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref Vpc
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      CidrBlock: !Ref VpcPublicSubnet2Cidr
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ['Public Subnet ${AZ} - ${VPC}', { 'AZ': !Select [1, !GetAZs ""], 'VPC': !Ref Vpc }]
+
+  PublicSubnet2RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
+
+  ## Public Subnet 3
+  PublicSubnet3:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref Vpc
+      AvailabilityZone: !Select [2, !GetAZs ""]
+      CidrBlock: !Ref VpcPublicSubnet3Cidr
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ['Public Subnet ${AZ} - ${VPC}', { 'AZ': !Select [2, !GetAZs ""], 'VPC': !Ref Vpc }]
+
+  PublicSubnet3RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet3

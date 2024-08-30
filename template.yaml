@@ -27,9 +27,6 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub 'aws-service-catalog-templates-${AWS::AccountId}-${AWS::Region}'
-      Tags:
-        - Key: org:cicd:writable
-          Value: "true"
 
   CfnTemplateBucketPolicy:
     Type: AWS::S3::BucketPolicy

@@ -45,28 +45,28 @@ Resources:
                 "aws:PrincipalOrgID":
                   - !Ref AwsOrganizationId
 
-#  OrgProductsStackSet:
-#    Type: AWS::CloudFormation::StackSet
-#    Properties:
-#      StackSetName: OrgProducts
-#      Description: Organization products
-#      Parameters:
-#        - ParameterKey: CfnTemplateBucket
-#          ParameterValue: !Ref CfnTemplateBucket
-#        - ParameterKey: GitHubSha
-#          ParameterValue: !Ref GitHubSha
-#      StackInstancesGroup:
-#        - DeploymentTargets:
-#            OrganizationalUnitIds: !Ref TargetOuIds
-#          Regions: !Ref TargetRegions
-#      AutoDeployment:
-#        Enabled: true
-#        RetainStacksOnAccountRemoval: false
-#      ManagedExecution:
-#        Active: true
-#      OperationPreferences:
-#        RegionConcurrencyType: PARALLEL
-#        FailureToleranceCount: 1
-#        MaxConcurrentCount: 5
-#      PermissionModel: SERVICE_MANAGED
-#      TemplateBody: *template_body
+  OrgProductsStackSet:
+    Type: AWS::CloudFormation::StackSet
+    Properties:
+      StackSetName: OrgProducts
+      Description: Organization products
+      Parameters:
+        - ParameterKey: CfnTemplateBucket
+          ParameterValue: !Ref CfnTemplateBucket
+        - ParameterKey: GitHubSha
+          ParameterValue: !Ref GitHubSha
+      StackInstancesGroup:
+        - DeploymentTargets:
+            OrganizationalUnitIds: !Ref TargetOuIds
+          Regions: !Ref TargetRegions
+      AutoDeployment:
+        Enabled: true
+        RetainStacksOnAccountRemoval: false
+      ManagedExecution:
+        Active: true
+      OperationPreferences:
+        RegionConcurrencyType: PARALLEL
+        FailureToleranceCount: 1
+        MaxConcurrentCount: 5
+      PermissionModel: SERVICE_MANAGED
+      TemplateBody: *template_body

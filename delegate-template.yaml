@@ -50,6 +50,7 @@ Resources:
     Properties:
       StackSetName: OrgProducts
       Description: Organization products
+      CallAs: DELEGATED_ADMIN
       Parameters:
         - ParameterKey: CfnTemplateBucket
           ParameterValue: !Ref CfnTemplateBucket

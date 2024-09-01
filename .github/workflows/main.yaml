@@ -56,6 +56,16 @@ jobs:
       - name: Validate artifact
         run: sam validate --lint
 
+      - name: Synethsize template with StackSet
+        run: |
+          for _f in $(find . -type f \( -name 'template.yaml' -o -name '*-template.yaml' \) -maxdepth 1); do
+            _dir="$(dirname $_f)/" \
+            yq \
+              -i \
+              '(.. | select(has("localTemplateFile")) | .localTemplateFile) |= load_str(strenv(_dir) + .)' \
+              $_f;
+          done
+
       - name: Upload SAM artifact
         id: upload-sam-template
         shell: bash

@@ -75,6 +75,14 @@ jobs:
           build_aws_account_id: ${{ secrets.AWS_CICD_ACCOUNT_ID }}
           deploy_aws_account_id: ${{ secrets.AWS_STACKSETS_ACCOUNT_ID }}
 
+      - name: Sync product templates to S3
+        id: sync-templates
+        shell: bash
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_STACKSETS_ACCOUNT_ID }}
+          STACKSET_S3_BUCKET_NAME_PREFIX: ${{ secrets.STACKSET_S3_BUCKET_NAME_PREFIX }}
+        run: aws s3 sync products/ s3://${STACKSET_S3_BUCKET_NAME_PREFIX}-${AWS_ACCOUNT_ID}-${AWS_REGION}/${GITHUB_SHA}/
+
       - name: Deploy via AWS SAM
         uses: ServerlessOpsIO/gha-deploy-aws-sam@v1
         with:

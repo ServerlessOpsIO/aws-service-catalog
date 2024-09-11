@@ -89,6 +89,6 @@ jobs:
           aws_account_id: ${{ secrets.AWS_STACKSETS_ACCOUNT_ID }}
           # NOTE: We have CAPABILITY_AUTO_EXPAND because of any future products that require
           # the Serverless transform or any other CFN transform.
-          cfn_capabilities: CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+          cfn_capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
           env_json: ${{ toJson(env) }}
           secrets_json: ${{ toJson(secrets) }}

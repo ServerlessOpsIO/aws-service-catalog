@@ -35,6 +35,12 @@ Parameters:
   VpcPublicSubnet3Cidr:
     Type: String
     Description: "VPC public subnet 3 CIDR block"
+    Default: 10.0.0.240/28
+
+  VpcName:
+    Type: String
+    Description: "VPC Name"
+    Default: "Account VPC"
 
   EnableNatGateway:
     Type: String
@@ -54,6 +60,9 @@ Resources:
       CidrBlock: !Ref VpcCidr
       EnableDnsHostnames: true
       EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Ref VpcName
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway

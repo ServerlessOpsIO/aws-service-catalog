@@ -15,7 +15,7 @@ Resources:
   DnsZoneNameSsmParam:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: /org/dns/ZoneName"
+      Name: "/org/dns/ZoneName"
       Type: String
       Value: !Ref ZoneName
 

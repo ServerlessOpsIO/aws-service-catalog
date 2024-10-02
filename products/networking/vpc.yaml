@@ -296,3 +296,37 @@ Resources:
     Properties:
       RouteTableId: !Ref PublicRouteTable
       SubnetId: !Ref PublicSubnet3
+
+
+  # SSM Parameters
+  VpcIdSsmParam:
+    Type: 'AWS::SSM::Parameter'
+    Properties:
+      Name: '/org/networking/VpcId'
+      Type: 'String'
+      Description: 'VPC ID'
+      Value: !Ref Vpc
+
+  VpcCidrSsmParam:
+    Type: 'AWS::SSM::Parameter'
+    Properties:
+      Name: '/org/networking/VpcCidr'
+      Type: 'String'
+      Description: 'VPC CIDR block'
+      Value: !Ref VpcCidr
+
+  VpcPublicSubnetsSsmParam:
+    Type: 'AWS::SSM::Parameter'
+    Properties:
+      Name: '/org/networking/VpcPublicSubnets'
+      Type: 'String'
+      Description: 'VPC public subnets'
+      Value: !Join [',', [!Ref PublicSubnet1, !Ref PublicSubnet2, !Ref PublicSubnet3]]
+
+  VpcPrivateSubnetsSsmParam:
+    Type: 'AWS::SSM::Parameter'
+    Properties:
+      Name: '/org/networking/VpcPrivateSubnets'
+      Type: 'String'
+      Description: 'VPC private subnets'
+      Value: !Join [',', [!Ref PrivateSubnet1, !Ref PrivateSubnet2, !Ref PrivateSubnet3]]

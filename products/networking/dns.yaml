@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: DNS domain
+
+Parameters:
+  ZoneName:
+    Type: String
+    Description: "DNS domain name"
+
+Resources:
+  DnsZone:
+    Type: "AWS::Route53::HostedZone"
+    Properties:
+      Name: !Ref ZoneName
+
+  DnsZoneNameSsmParam:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: /org/dns/ZoneName"
+      Type: String
+      Value: !Ref ZoneName
+
+  DnsZoneIdSsmParam:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/org/dns/ZoneId"
+      Type: String
+      Value: !Ref DnsZone
+
+  DnsZoneNsServersSsmParam:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "/org/dns/ZoneNameServers"
+      Type: StringList
+      Value: !Join [ ',', !GetAtt DnsZone.NameServers ]

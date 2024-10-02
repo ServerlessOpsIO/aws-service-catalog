@@ -53,3 +53,21 @@ Resources:
       PortfolioId: !Ref NetworkingPortfolio
       ProductId: !Ref VpcProduct
 
+
+  DnsProduct:
+    Type: AWS::ServiceCatalog::CloudFormationProduct
+    Properties:
+      Name: DNS Zone
+      Description: DNS zone
+      Owner: ServerlessOps
+      ProvisioningArtifactParameters:
+        - Name: latest
+          Description: latest release
+          Info:
+            LoadTemplateFromURL: !Sub 'https://${CfnTemplateBucket}.s3.amazonaws.com/${GitHubSha}/networking/dns.yaml'
+
+  DnsProductAssociation:
+    Type: AWS::ServiceCatalog::PortfolioProductAssociation
+    Properties:
+      PortfolioId: !Ref NetworkingPortfolio
+      ProductId: !Ref DnsProduct

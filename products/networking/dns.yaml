@@ -43,4 +43,4 @@ Resources:
       ServiceToken: !Ref CustomResourceTarget
       ServiceTimeout: 60
       ZoneName: !Ref ZoneName
-      ZoneNameServers: !GetAtt DnsZone.NameServers
+      NameServers: !GetAtt DnsZone.NameServers

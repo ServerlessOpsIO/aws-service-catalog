@@ -70,4 +70,7 @@ Resources:
         FailureToleranceCount: 1
         MaxConcurrentCount: 5
       PermissionModel: SERVICE_MANAGED
+      Capabilities:
+        - CAPABILITY_NAMED_IAM
+        - CAPABILITY_AUTO_EXPAND
       TemplateBody: *template_body

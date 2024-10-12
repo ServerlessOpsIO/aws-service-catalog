@@ -5,6 +5,10 @@ Parameters:
   ZoneName:
     Type: String
     Description: "DNS domain name"
+  CustomResourceTarget:
+    Type: AWS::SSM::Parameter::Value<String>
+    Description: "Custom resource target"
+    Default: "/org/cicd/CustomResourceTopic"
 
 Resources:
   DnsZone:
@@ -32,3 +36,11 @@ Resources:
       Name: "/org/dns/ZoneNameServers"
       Type: StringList
       Value: !Join [ ',', !GetAtt DnsZone.NameServers ]
+
+  RegisterDnsZone:
+    Type: Custom::RegisterDnsZone
+    Properties:
+      ServiceToken: !Ref CustomResourceTarget
+      ServiceTimeout: 60
+      ZoneName: !Ref ZoneName
+      ZoneNameServers: !GetAtt DnsZone.NameServers

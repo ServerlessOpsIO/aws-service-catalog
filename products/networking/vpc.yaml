@@ -265,7 +265,7 @@ Resources:
       VpcId: !Ref Vpc
       AvailabilityZone: !Select [0, !GetAZs ""]
       CidrBlock: !Ref VpcPublicSubnet1Cidr
-      MapPublicIpOnLaunch: false
+      MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
           Value: !Sub ['Public Subnet ${AZ} - ${VPC}', { 'AZ': !Select [0, !GetAZs ""], 'VPC': !Ref Vpc }]
@@ -283,7 +283,7 @@ Resources:
       VpcId: !Ref Vpc
       AvailabilityZone: !Select [1, !GetAZs ""]
       CidrBlock: !Ref VpcPublicSubnet2Cidr
-      MapPublicIpOnLaunch: false
+      MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
           Value: !Sub ['Public Subnet ${AZ} - ${VPC}', { 'AZ': !Select [1, !GetAZs ""], 'VPC': !Ref Vpc }]
@@ -301,7 +301,7 @@ Resources:
       VpcId: !Ref Vpc
       AvailabilityZone: !Select [2, !GetAZs ""]
       CidrBlock: !Ref VpcPublicSubnet3Cidr
-      MapPublicIpOnLaunch: false
+      MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
           Value: !Sub ['Public Subnet ${AZ} - ${VPC}', { 'AZ': !Select [2, !GetAZs ""], 'VPC': !Ref Vpc }]

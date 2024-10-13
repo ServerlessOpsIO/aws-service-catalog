@@ -334,7 +334,7 @@ Resources:
     Type: 'AWS::SSM::Parameter'
     Properties:
       Name: '/org/networking/VpcPublicSubnets'
-      Type: 'String'
+      Type: 'StringList'
       Description: 'VPC public subnets'
       Value: !Join [',', [!Ref PublicSubnet1, !Ref PublicSubnet2, !Ref PublicSubnet3]]
 
@@ -342,6 +342,6 @@ Resources:
     Type: 'AWS::SSM::Parameter'
     Properties:
       Name: '/org/networking/VpcPrivateSubnets'
-      Type: 'String'
+      Type: 'StringList'
       Description: 'VPC private subnets'
       Value: !Join [',', [!Ref PrivateSubnet1, !Ref PrivateSubnet2, !Ref PrivateSubnet3]]

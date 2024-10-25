@@ -73,20 +73,20 @@ jobs:
         uses: ServerlessOpsIO/gha-assume-aws-credentials@v1
         with:
           build_aws_account_id: ${{ secrets.AWS_CICD_ACCOUNT_ID }}
-          deploy_aws_account_id: ${{ secrets.AWS_STACKSETS_ACCOUNT_ID }}
+          deploy_aws_account_id: ${{ secrets.AWS_MANAGEMENT_ACCOUNT_ID }}
 
-      - name: Sync product templates to S3
-        id: sync-templates
-        shell: bash
-        env:
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_STACKSETS_ACCOUNT_ID }}
-          STACKSET_S3_BUCKET_NAME_PREFIX: ${{ secrets.STACKSET_S3_BUCKET_NAME_PREFIX }}
-        run: aws s3 sync products/ s3://${STACKSET_S3_BUCKET_NAME_PREFIX}-${AWS_ACCOUNT_ID}-${AWS_REGION}/${GITHUB_SHA}/
+      #- name: Sync product templates to S3
+      #  id: sync-templates
+      #  shell: bash
+      #  env:
+      #    AWS_ACCOUNT_ID: ${{ secrets.AWS_MANAGEMENT_ACCOUNT_ID }}
+      #    STACKSET_S3_BUCKET_NAME_PREFIX: ${{ env.STACKSET_S3_BUCKET_NAME_PREFIX }}
+      #  run: aws s3 sync products/ s3://${STACKSET_S3_BUCKET_NAME_PREFIX}-${AWS_ACCOUNT_ID}-${AWS_REGION}/${GITHUB_SHA}/
 
       - name: Deploy via AWS SAM
         uses: ServerlessOpsIO/gha-deploy-aws-sam@v1
         with:
-          aws_account_id: ${{ secrets.AWS_STACKSETS_ACCOUNT_ID }}
+          aws_account_id: ${{ secrets.AWS_MANAGEMENT_ACCOUNT_ID }}
           # NOTE: We have CAPABILITY_AUTO_EXPAND because of any future products that require
           # the Serverless transform or any other CFN transform.
           cfn_capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND

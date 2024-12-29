@@ -1,0 +1,13 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: aws-service-catalog
+  description: AWS Service Catalog Products
+  annotations:
+    github.com/project-slug: ServerlessOpsIO/aws-service-catalog
+spec:
+  type: api
+  lifecycle: production
+  owner: group:0319y80a3hmm9y7
+  system: system:account-config

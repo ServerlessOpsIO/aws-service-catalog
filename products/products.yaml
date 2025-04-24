@@ -11,6 +11,22 @@ Parameters:
     Description: GitHub SHA
 
 Resources:
+  ServiceCatalogCfnExecIamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "ServiceCatalogCfnExecIamRole-${AWS::Region}"
+      Description: "Service Catalog CFN execution role"
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: servicecatalog.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
   # Portfolios
   NetworkingPortfolio:
     Type: AWS::ServiceCatalog::Portfolio
@@ -79,19 +95,3 @@ Resources:
       PortfolioId: !Ref NetworkingPortfolio
       ProductId: !Ref DnsProduct
       RoleArn: !GetAtt ServiceCatalogCfnExecIamRole.Arn
-
-  ServiceCatalogCfnExecIamRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub "ServiceCatalogCfnExecIamRole-${AWS::Region}"
-      Description: "Service Catalog CFN execution role"
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: servicecatalog.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AdministratorAccess

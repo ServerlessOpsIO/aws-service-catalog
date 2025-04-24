@@ -1,6 +1,6 @@
 {
     "AwsOrganizationId": $secrets.AWS_ORG_ID,
     "TargetOuIds": $secrets.AWS_ORG_ROOT_ID,
-    "TargetRegions": "us-east-1",
+    "TargetRegions": "us-east-1,us-east-2",
     "GitHubSha": $env.GITHUB_SHA
 }

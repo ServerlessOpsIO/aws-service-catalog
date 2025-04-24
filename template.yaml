@@ -45,6 +45,22 @@ Resources:
                 "aws:PrincipalOrgID":
                   - !Ref AwsOrganizationId
 
+  ServiceCatalogCfnExecIamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "ServiceCatalogCfnExecIamRole-${AWS::Region}"
+      Description: "Service Catalog CFN execution role"
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: servicecatalog.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
   OrgProductsStackSet:
     Type: AWS::CloudFormation::StackSet
     Properties:
@@ -55,6 +71,8 @@ Resources:
           ParameterValue: !Ref CfnTemplateBucket
         - ParameterKey: GitHubSha
           ParameterValue: !Ref GitHubSha
+        - ParameterKey: ServiceCatalogCfnExecIamRoleArn
+          ParameterValue: !GetAtt ServiceCatalogCfnExecIamRole.Arn
       StackInstancesGroup:
         - DeploymentTargets:
             OrganizationalUnitIds: !Ref TargetOuIds

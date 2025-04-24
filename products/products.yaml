@@ -9,6 +9,10 @@ Parameters:
   GitHubSha:
     Type: String
     Description: GitHub SHA
+  
+  ServiceCatalogCfnExecIamRoleArn:
+    Type: String
+    Description: ARN of CFN exec Role for Service Catalog
 
 Resources:
   # Portfolios
@@ -78,20 +82,4 @@ Resources:
       Description: "DNS zone launch constraint"
       PortfolioId: !Ref NetworkingPortfolio
       ProductId: !Ref DnsProduct
-      RoleArn: !GetAtt ServiceCatalogCfnExecIamRole.Arn
-
-  ServiceCatalogCfnExecIamRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub "ServiceCatalogCfnExecIamRole-${AWS::Region}"
-      Description: "Service Catalog CFN execution role"
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: servicecatalog.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AdministratorAccess
+      RoleArn: !Ref ServiceCatalogCfnExecIamRoleArn
